@@ -1,3 +1,21 @@
+class Game
+
+  attr_reader :board, :players
+
+  def initialize(board, players)
+    @board = board
+    @players = players
+ end
+
+ def reveal(pos)
+   if board[pos].bomb
+      game_over
+   else
+     board.reveal(pos)
+   end
+ end
+end
+
 class Board
 
 
@@ -56,6 +74,29 @@ class Board
     loc.all? { |n| n.between?(0, grid.length - 1) }
   end
 
+  def display
+    grid.each do |row|
+      sub_grid = ""
+      row.each do |tile|
+        sub_grid += tile.to_s + " "
+      end
+      puts sub_grid + "\n"
+    end
+  end
+
+  def reveal(pos)
+    queue = [pos]
+
+    until queue.empty?
+      space = queue.shift
+      self[space].reveal = true
+      if self[space].value.zero?
+        queue += adjacent_spaces(space).reject { |sp| self[sp].reveal }
+      end
+    end
+
+    nil
+  end
 
 end
 
@@ -69,6 +110,19 @@ class Tile
     @value = 0
   end
 
+  def to_s
+    if reveal
+      if bomb
+        "!"
+      else
+        value.zero? ? "_" : value.to_s
+      end
 
+    elsif flag
+      "F"
 
+    else
+      "*"
+    end
+  end
 end
