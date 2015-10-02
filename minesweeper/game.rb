@@ -1,5 +1,6 @@
 # coding: utf-8
 require_relative 'board.rb'
+require_relative 'keystrokes.rb'
 require 'byebug'
 require 'colorize'
 
@@ -54,6 +55,28 @@ class Game
     f = File.new(file_name, "w")
     f.write(string)
     f.close
+  end
+
+  # modified from https://gist.github.com/acook/4190379
+  # original case statement from:
+  # http://www.alecjacobson.com/weblog/?p=75
+  def interpret_keystroke(c)
+    case c
+    when " "
+      puts "SPACE"
+    when "\e[A"
+      puts "UP ARROW"
+    when "\e[B"
+      puts "DOWN ARROW"
+    when "\e[C"
+      puts "RIGHT ARROW"
+    when "\e[D"
+      puts "LEFT ARROW"
+    when /^.$/
+      puts "SINGLE CHAR HIT: #{c.inspect}"
+    else
+      nil
+    end
   end
 end
 
