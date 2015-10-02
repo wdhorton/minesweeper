@@ -5,15 +5,55 @@ class Game
   def initialize(board, players)
     @board = board
     @players = players
- end
+  end
 
- def reveal(pos)
-   if board[pos].bomb
-      game_over
-   else
-     board.reveal(pos)
-   end
- end
+  def play
+    until game_over?
+      system("clear")
+      board.display
+      action, pos = get_player_input
+      if action == "f"
+        toggle_flag(pos)
+      else
+        reveal(pos)
+      end
+    end
+    game_over
+  end
+
+  def get_player_input
+    parse_input(gets.chomp)
+  end
+
+  def parse_input(str)
+    [str[0], [str[2].to_i,str[4].to_i]]
+  end
+
+  def reveal(pos)
+    if board[pos].flag
+       puts "You must unflag this space first"
+    else
+      board.reveal(pos)
+    end
+  end
+
+  def toggle_flag(pos)
+    flg = board[pos].flag
+    board[pos].flag = !flg
+  end
+
+  def game_over?
+    return true if board.grid.flatten.any? { |tile| tile.bomb && tile.reveal }
+    return true if board.grid.flatten.all? { |tile| tile.bomb || tile.reveal }
+    false
+  end
+
+  def game_over
+    puts "Game Over!"
+    board.grid.flatten.each { |tile| tile.reveal = true }
+    board.display
+  end
+
 end
 
 class Board
@@ -33,13 +73,14 @@ class Board
   attr_reader :grid
   def initialize(size = 9)
     @grid = Array.new(size) { Array.new(size) { Tile.new } }
+    add_bombs
+    set_tile_values
   end
 
   def[](pos)
     x,y = pos
     grid[x][y]
   end
-
 
   def add_bombs(number = 15)
     bombs = 0
@@ -82,6 +123,8 @@ class Board
       end
       puts sub_grid + "\n"
     end
+
+    nil
   end
 
   def reveal(pos)
@@ -91,7 +134,7 @@ class Board
       space = queue.shift
       self[space].reveal = true
       if self[space].value.zero?
-        queue += adjacent_spaces(space).reject { |sp| self[sp].reveal }
+        queue += adjacent_spaces(space).reject { |sp| self[sp].reveal || self[sp].flag  }
       end
     end
 
