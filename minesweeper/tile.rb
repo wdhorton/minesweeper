@@ -26,21 +26,22 @@ class Tile
   def to_s
     if reveal
       if bomb
-        "!"
+        "!".red
       else
-        value.zero? ? "_" : value.to_s
+        value.zero? ? "_".light_black : value.to_s.blue
       end
-
     elsif flag
-      "F"
-
+      "⚑".green
     else
-      "⚀"
+      if board.game_over? && bomb
+        "!".light_red
+      end
+      " "
     end
   end
 
   def toggle_flag
-    flag = !flag
+    self.flag = !flag
   end
 
   def reveal_tile

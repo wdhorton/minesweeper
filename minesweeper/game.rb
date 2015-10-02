@@ -1,8 +1,13 @@
 # coding: utf-8
 require_relative 'board.rb'
 require 'byebug'
+require 'colorize'
 
 class Game
+
+  def self.load(file_name)
+    YAML.load(File.read(file_name)).play
+  end
 
   attr_reader :board, :players
 
@@ -15,8 +20,11 @@ class Game
       system("clear")
       board.display
       action, pos = get_player_input
-      tile = board[pos]
-      if action == "f"
+      tile = board[pos] if pos
+      if action == "s"
+        save
+        exit
+      elsif action == "f"
         tile.toggle_flag
       else
         tile.reveal_tile
@@ -36,8 +44,19 @@ class Game
   def game_over
     system("clear")
     puts (board.won? ? "You Won!" : "BOOM")
-    board.tiles.each { |tile| tile.reveal = true }
     board.display
   end
 
+  def save
+    puts "Enter File Name:"
+    file_name = gets.chomp
+    string = to_yaml
+    f = File.new(file_name, "w")
+    f.write(string)
+    f.close
+  end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  Game.new.play
 end

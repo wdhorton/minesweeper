@@ -48,19 +48,15 @@ class Board
   end
 
   def display
-    strings = tiles.map(&:to_s)
-    strings.each_slice(grid.length) do |line|
-      puts line.join(" ")
+    strings = tiles.map { |tile| tile.to_s }
+    num_rows = strings.each_slice(grid.length).map do |line|
+       "║ " + line.join(" │ ") + " ║\n"
     end
-    # grid.each do |row|
-    #   sub_grid = ""
-    #   row.each do |tile|
-    #     sub_grid += tile.to_s + " "
-    #   end
-    #   puts sub_grid + "\n"
-    # end
-    #
-    # nil
+    top_row =    "╔" + "═══╤" * (grid.length - 1) + "═══╗\n"
+    bottom_row = "╚" + "═══╧" * (grid.length - 1) + "═══╝\n"
+    middle_row = "╟" + "───┼" * (grid.length - 1) + "───╢\n"
+    box = top_row + (num_rows.join(middle_row)) + bottom_row
+    puts box
   end
 
   def reveal_surrounding_spaces(pos)
