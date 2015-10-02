@@ -1,3 +1,4 @@
+# coding: utf-8
 class Game
 
   attr_reader :board, :players
@@ -42,14 +43,23 @@ class Game
     board[pos].flag = !flg
   end
 
+  def won?
+    (board.grid.flatten.all? { |tile| tile.bomb || tile.reveal }) ||
+    (board.grid.flatten.select(&:bomb) == board.grid.flatten.select(&:flag))
+
+  end
+
+  def lost?
+    board.grid.flatten.any? { |tile| tile.bomb && tile.reveal }
+  end
+
   def game_over?
-    return true if board.grid.flatten.any? { |tile| tile.bomb && tile.reveal }
-    return true if board.grid.flatten.all? { |tile| tile.bomb || tile.reveal }
-    false
+    won? || lost?
   end
 
   def game_over
-    puts "Game Over!"
+    system("clear")
+    puts (won? ? "You Won!" : "BOOM")
     board.grid.flatten.each { |tile| tile.reveal = true }
     board.display
   end
@@ -57,7 +67,6 @@ class Game
 end
 
 class Board
-
 
   ADJACENTS = [
     [-1, -1],
@@ -165,7 +174,7 @@ class Tile
       "F"
 
     else
-      "*"
+      "⚀"
     end
   end
 end
